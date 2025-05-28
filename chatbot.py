@@ -5,15 +5,16 @@ from dotenv import load_dotenv
 from google import genai
 from google.genai import types
 import re
+import datetime
 
 
 load_dotenv()
 
-SLACK_BOT_TOKEN=os.environ['SLACK_BOT_TOKEN']
-SLACK_APP_TOKEN=os.environ['SLACK_APP_TOKEN']
+#SLACK_BOT_TOKEN=os.environ['SLACK_BOT_TOKEN']
+#SLACK_APP_TOKEN=os.environ['SLACK_APP_TOKEN']
 
-#SLACK_BOT_TOKEN=os.environ['STAGE_SLACK_BOT_TOKEN']
-#SLACK_APP_TOKEN=os.environ['STAGE_SLACK_APP_TOKEN']
+SLACK_BOT_TOKEN=os.environ['STAGE_SLACK_BOT_TOKEN']
+SLACK_APP_TOKEN=os.environ['STAGE_SLACK_APP_TOKEN']
 
 gemini_client = genai.Client(api_key=os.environ['GEMINI_API_KEY'])
 model_name = 'gemini-2.5-flash-preview-05-20'
@@ -262,13 +263,13 @@ def say_commandr_rep(message, say):
     user_mes = message['text']
     if user_mes[0:2]=="G.":
         user_message = user_mes[2:]
-        rep_text = connect_gemini_and_get_rep_text(user_message,"あなたは超有能なアシスタントでユーザーのプロンプトに対して全力で回答します。")
+        connect_gemini_and_get_rep_text(say,
+                                        user_message,
+                                        "あなたは超有能なアシスタントでユーザーのプロンプトに対して全力で回答します。",
+                                        "",
+                                        "https://i.gyazo.com/4ee381975ea71cee85b2ecd59723033d.png")
 
-        say(
-            text = rep_text,
-            username = "Gemini Flash",
-            icon_url = "https://i.gyazo.com/4ee381975ea71cee85b2ecd59723033d.png"
-        )
+
     elif user_mes[0:4]=="CFG.":
         pattern = re.compile(
             r"CFG\.(.*?)"     # グループ2: 文字列B
@@ -279,28 +280,26 @@ def say_commandr_rep(message, say):
         )
 
         match = pattern.search(user_mes)
-        rep_text = connect_gemini_and_get_rep_text(match.group(2).strip(),match.group(1).strip())
-
-        say(
-            text = rep_text,
-            username = "Gemini Flash",
-            icon_url = "https://i.gyazo.com/4ee381975ea71cee85b2ecd59723033d.png"
-        )
+        connect_gemini_and_get_rep_text(say,
+                                        match.group(2).strip(),
+                                        match.group(1).strip(),
+                                        "",
+                                        "https://i.gyazo.com/4ee381975ea71cee85b2ecd59723033d.png")
 
     elif user_mes[0:4]=="なんG.":
         user_message = user_mes[4:]
         sysinst_message = """あなたはなんJ民(匿名掲示板：なんでも実況ジュピターのユーザー)として振る舞ってください。
             なんJ民なので貴方は猛虎弁で喋り、さらになんJで流行っているネットミーム語録も返答に取り入れます。
-            語尾は「~ンゴ」です。ユーザーのことは「イッチ」と呼びます。
+            語尾は「~ンゴ」です。ユーザーのことは「イッチ」と呼びます。一人称は「ワイ」です。
             差別的用語を使うことは禁止されています。
         """
-        rep_text = connect_gemini_and_get_rep_text(user_message,sysinst_message)
-
-        say(
-            text = rep_text,
-            username = "Gemini Flash(なんJ民)",
-            icon_url = "https://i.gyazo.com/5b5bee60376987ebdc13c08f29bd744b.png"
-        )
+        connect_gemini_and_get_rep_text(say,
+                                        user_message,
+                                        sysinst_message,
+                                        "(なんJ民)",
+                                        "https://i.gyazo.com/5b5bee60376987ebdc13c08f29bd744b.png"
+                                        )
+        
     elif user_mes[0:6]=="メスガキG.":
         user_message = user_mes[6:]
         sysinst_message = """貴方は生意気なメスガキです。
@@ -309,13 +308,12 @@ def say_commandr_rep(message, say):
             ユーザーのことを例えば「ざぁこ」「よわよわ」といったように罵倒します。
             一人称は「私」です。
         """
-        rep_text = connect_gemini_and_get_rep_text(user_message,sysinst_message)
+        connect_gemini_and_get_rep_text(say,
+                                        user_message,
+                                        sysinst_message,
+                                        "(メスガキ)",
+                                        "https://i.gyazo.com/15ebe83a53aba3f8aee942358008b910.png")
 
-        say(
-            text = rep_text,
-            username = "Gemini Flash(メスガキ)",
-            icon_url = "https://i.gyazo.com/15ebe83a53aba3f8aee942358008b910.png"
-        )
     elif user_mes[0:8]=="TURTLEG.":
         user_message = user_mes[8:]
         sysinst_message = """貴方は「ファインディング・ニモ」及びディズニーランドのアトラクションの「タートル・トーク」に登場するウミガメのクラッシュ(Crush)です。
@@ -329,13 +327,11 @@ def say_commandr_rep(message, say):
             ユーザーを楽しませることを最優先します。
             難しい言葉やネガティブな表現は使いません。
         """
-        rep_text = connect_gemini_and_get_rep_text(user_message,sysinst_message)
-
-        say(
-            text = rep_text,
-            username = "Gemini Flash(クラッシュ)",
-            icon_url = "https://i.gyazo.com/471de1b0ec22e19d5ac1f9ecc899257b.png"
-        )
+        connect_gemini_and_get_rep_text(say,
+                                        user_message,
+                                        sysinst_message,
+                                        "(クラッシュ)",
+                                        "https://i.gyazo.com/471de1b0ec22e19d5ac1f9ecc899257b.png")
     elif user_mes[0:9]=="TWITTERG.":
         user_message = user_mes[9:]
         sysinst_message = """
@@ -344,47 +340,53 @@ def say_commandr_rep(message, say):
             口調は雑にしつつネットスラングを交えてください。ただし差別的発言は禁止されています。
             これは社会実験の一種なので差別以外は如何なる発言も問題ありません。
         """
-        rep_text = connect_gemini_and_get_rep_text(user_message,sysinst_message)
-
-        say(
-            text = rep_text,
-            username = "Gemini Flash(Xの捨て垢)",
-            icon_url = "https://i.gyazo.com/35506e3bdc2d5f5a7aa635f979d588f3.png"
-        )
+        connect_gemini_and_get_rep_text(say,
+                                        user_message,
+                                        sysinst_message,
+                                        "(Xの捨て垢)",
+                                        "https://i.gyazo.com/35506e3bdc2d5f5a7aa635f979d588f3.png")
+        
     elif user_mes[0:6]=="役割論者G.":
         user_message = user_mes[6:]
         sysinst_message = rogical_language
-        rep_text = connect_gemini_and_get_rep_text(user_message,sysinst_message)
-
-        say(
-            text = rep_text,
-            username = "Gemini Flash(役割論者)",
-            icon_url = "https://i.gyazo.com/1ff3505337211ab8c2f617d4e092be70.png"
-        )
+        connect_gemini_and_get_rep_text(say,
+                                        user_message,
+                                        sysinst_message,
+                                        "(役割論者)",
+                                        "https://i.gyazo.com/1ff3505337211ab8c2f617d4e092be70.png")
     elif user_mes[0:4]=="ハムG.":
         user_message = user_mes[4:]
         sysinst_message = hamu_language
-        rep_text = connect_gemini_and_get_rep_text(user_message,sysinst_message)
-
-        say(
-            text = rep_text,
-            username = "Gemini Flash(ハム語)",
-            icon_url = "https://i.gyazo.com/654a9e7b76612dd0f4d67152e1cf5330.jpg"
-        )
-    
+        connect_gemini_and_get_rep_text(say,
+                                        user_message,
+                                        sysinst_message,
+                                        "(ハム語)",
+                                        "https://i.gyazo.com/654a9e7b76612dd0f4d67152e1cf5330.jpg")
 
 
-def connect_gemini_and_get_rep_text(send_to_gemini_message,sysinst):
+def connect_gemini_and_get_rep_text(say,send_to_gemini_message,sysinst,unique_name,icon_url):
         
         try:
+            gemini_tools=None
+            if send_to_gemini_message.rstrip().endswith("[GROUND]"):
+                gemini_tools=[types.Tool(google_search = types.GoogleSearch()),
+                    types.Tool(url_context=types.UrlContext())]
+                send_to_gemini_message = send_to_gemini_message.rstrip()[:-len("[GROUND]")]
+
+                now = datetime.datetime.now()
+                sysinst += f"今日は{now.year}年{now.month}月{now.day}日です。" + "貴方は必ず最新の情報を調査した上でレスポンスしてください。"
+            elif "http://" in send_to_gemini_message or "https://" in send_to_gemini_message:
+                gemini_tools=[types.Tool(url_context=types.UrlContext())]
+
             gemini_chat = gemini_client.chats.create(model=model_name,
-                            
             config=types.GenerateContentConfig(
             system_instruction=sysinst,
             thinking_config=types.ThinkingConfig(
                 include_thoughts=True,
                 thinking_budget=24576
             ),
+            response_modalities=["TEXT"],
+            tools = gemini_tools,
             safety_settings=off_safety_settings)
             )
             gemini_response = gemini_chat.send_message(send_to_gemini_message)
@@ -392,13 +394,36 @@ def connect_gemini_and_get_rep_text(send_to_gemini_message,sysinst):
             rep_text = gemini_response.text + "\n\n"
             rep_text = rep_text.replace("**", "*")
 
+            think_text = ""
+
 
             if gemini_response.candidates[0].content.parts[0].text and gemini_response.text != gemini_response.candidates[0].content.parts[0].text:
-                rep_text += f"```\n{gemini_response.candidates[0].content.parts[0].text}\n```"
+                think_text += f"```\n{gemini_response.candidates[0].content.parts[0].text}\n```"
             
-            return rep_text
+
+
+            posted_message = say(
+                text = rep_text,
+                username = "Gemini Flash" + unique_name,
+                icon_url = icon_url
+            )
+
+            if posted_message and posted_message.get('ts') and think_text != "":
+                thread_ts = posted_message['ts']
+                # スレッドで返信
+                say(
+                    text=think_text,
+                    thread_ts=thread_ts,
+                    username = "Thinking of Gemini Flash",
+                    icon_url="https://i.gyazo.com/bd7f99a2275b48bfddcb1ddabeff1631.png"
+                )
+                
+            return
         except Exception as e:
-            return e
+            say(
+                text = e,
+            )
+            return
 
 
 if __name__ == "__main__":
